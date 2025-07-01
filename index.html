@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="/favicon.svg" />
+    <meta charset="UTF-8">
+    <title>Cat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+        }
+        .navbar {
+            background: #fff;
+            padding: 16px 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+        }
+        .navbar .cat-emoji {
+            font-size: 2rem;
+        }
+        /* Keep the button at the bottom of the container */
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 70vh;
+            height: 70vh;
+            max-width: 90%;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            padding: 32px 24px;
+            width: 70%;
+            text-align: center;
+        }
+        .btn {
+            margin-top: 24px;
+        }
+        .cat-img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            object-fit: scale-down;
+        }
+        .btn {
+            background: #ffb300;
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #ffa000;
+        }
+        .hidden {
+            display: none;
+        }
+        .loader {
+            margin: 60px auto 24px auto;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #ffb300;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg);}
+            100% { transform: rotate(360deg);}
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <span class="cat-emoji">🐈</span>
+    </nav>
+    <div id="container" class="container hidden">
+        <img id="catImage" class="cat-img" src="" alt="Random Cat" style="visibility:hidden;">
+        <div>
+            <button id="catBtn" class="btn" onclick="loadCat()">Show me a cat!</button>
+        </div>
+    </div>
+    <div id="loader" class="loader"></div>
+    <script>
+        async function loadCat() {
+            const img = document.getElementById('catImage');
+            const btn = document.getElementById('catBtn');
+            img.style.visibility = 'hidden';
+            btn.disabled = true;
+            try {
+                const res = await fetch('https://api.thecatapi.com/v1/images/search');
+                const data = await res.json();
+                if (data[0] && data[0].url) {
+                    img.onload = () => {
+                        img.style.visibility = 'visible';
+                        btn.disabled = false;
+                    };
+                    img.style.height = data[0].height ? data[0].height + 'px' : 'auto'
+                    img.style.width = data[0].width ? data[0].width + 'px' : 'auto'
+                    img.src = data[0].url;
+
+                } else {
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                alert('Failed to load cat image.');
+                btn.disabled = false;
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const container = document.getElementById('container');
+            const loader = document.getElementById('loader');
+            const img = document.getElementById('catImage');
+            try {
+                const res = await fetch('https://api.thecatapi.com/v1/images/search');
+                const data = await res.json();
+                if (data[0] && data[0].url) {
+                    img.onload = () => {
+                        loader.classList.add('hidden');
+                        container.classList.remove('hidden');
+                        img.style.visibility = 'visible';
+                    };
+                    img.style.height = data[0].height ? data[0].height + 'px' : 'auto'
+                    img.style.width = data[0].width ? data[0].width + 'px' : 'auto'
+                    img.src = data[0].url;
+                    console.log('Cat image loaded:', data[0].url);
+                } else {
+                    loader.classList.add('hidden');
+                    container.classList.remove('hidden');
+                }
+            } catch (e) {
+                loader.classList.add('hidden');
+                container.classList.remove('hidden');
+                alert('Failed to load cat image.');
+            }
+        });
+    </script>
+</body>
+</html>
